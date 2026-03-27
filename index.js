@@ -1,27 +1,31 @@
-import http from "node:http";
-import fs from "node:fs";
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 8080;
 
-http
-  .createServer((req, res) => {
-    let filePath;
-    let status = 200;
-    if (req.url === "/") {
-      filePath = "index.html";
-    } else if (req.url === "/about") {
-      filePath = "about.html";
-    } else if (req.url === "/contact") {
-      filePath = "contact.html";
-    } else {
-      filePath = "404.html";
-      status = 404;
-    }
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        res.writeHead(500, { "content-type": "text/html" });
-        return res.end("<h1>Server Error</h1>");
-      }
-      res.writeHead(status, { "content-type": "text/html" });
-      res.end(data);
-    });
-  })
-  .listen(8080);
+app.get("/", (req, res) => {
+  res.sendFile("index.html", { root: __dirname }, (err) => {
+    if (err) res.status(500).send("Server error");
+  });
+});
+
+app.get("/about", (req, res) => {
+  res.sendFile("about.html", { root: __dirname }, (err) => {
+    if (err) res.status(500).send("Server error");
+  });
+});
+
+app.get("/contact", (req, res) => {
+  res.sendFile("contact.html", { root: __dirname }, (err) => {
+    if (err) res.status(500).send("Server error");
+  });
+});
+
+app.use((req, res) => {
+  res.status(404).sendFile("404.html", { root: __dirname }, (err) => {
+    if (err) res.status(500).send("Server error");
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
